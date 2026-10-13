@@ -90,9 +90,7 @@ microbiome data, developed by the OMA consortium.
 [*Orchestrating Microbiome Analysis with Bioconductor*](https://bioconductor.org/books/release/OMA/)
 covers the whole workflow, from data import and wrangling to diversity,
 differential abundance, multi-omics integration and machine learning, with
-reproducible examples on real data. It is free to read online, and a
-[development version](https://microbiome.github.io/OMA/docs/devel/) follows
-the latest changes.
+reproducible examples on real data. It is free to read online.
 
 [Open the book](https://bioconductor.org/books/release/OMA/){.btn-oma .btn-gradient-oma}
 :::

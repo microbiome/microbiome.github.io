@@ -1,0 +1,170 @@
+<script src="https://cdn.jsdelivr.net/npm/globe.gl@2.46.1/dist/globe.gl.min.js"></script>
+<script>
+// 3D globe of workshops with map pins. Data comes from data/events.csv via
+// window.omaEvents. Clicking a pin or a list item selects the workshop in both.
+(function () {
+  if (!window.omaEvents) return;
+
+  // --- Workshop status, decided from today's date in the visitor's browser ---
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const day = iso => { const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d); };
+  window.omaEvents.forEach(d => {
+    d.upcoming = day(d.start) >= today;
+    d.open = d.upcoming && !!d.registration && (!d.deadline || day(d.deadline) >= today);
+  });
+
+  // --- Workshop list: Upcoming (soonest first), then Past (newest first) ---
+  const esc = t => String(t ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const listEl = document.querySelector(".event-list");
+  if (listEl) {
+    const item = d => {
+      const meta = [d.kind, d.label, d.where].filter(Boolean).map(esc).join(" · ");
+      const cls = ["event", d.lat == null && "online", d.upcoming && "upcoming", d.open && "open"].filter(Boolean).join(" ");
+      const register = d.open
+        ? `<span class="register-row"><a class="register" href="${esc(d.registration)}">Register</a>` +
+          (d.deadline_label ? `<span class="deadline">Closes ${esc(d.deadline_label)}</span>` : "") + `</span>` : "";
+      return `<div class="${cls}" data-id="${d.id}"><span class="dot"></span><span>` +
+             `<span class="event-title">${esc(d.title)}</span><span class="event-meta">${meta}</span>${register}</span></div>`;
+    };
+    const upcoming = window.omaEvents.filter(d => d.upcoming).sort((a, b) => a.start.localeCompare(b.start));
+    const past = window.omaEvents.filter(d => !d.upcoming).sort((a, b) => b.start.localeCompare(a.start));
+    listEl.innerHTML =
+      (upcoming.length ? `<div class="event-group">Upcoming</div>` + upcoming.map(item).join("") : "") +
+      `<div class="event-group">Past</div>` + past.map(item).join("");
+  }
+
+  // --- Globe ---
+  const el = document.getElementById("globe");
+  if (!el || !window.Globe) return;
+  const mapped = window.omaEvents.filter(d => d.lat != null);
+
+  const BLUE = "#0087af";  // Bioconductor blue, see styles/theme.scss
+  const items = [...document.querySelectorAll(".event[data-id]")];
+  const pins = new Map();
+
+  const pinSvg =
+    '<svg viewBox="0 0 26 34" aria-hidden="true">' +
+    '<path class="pin-body" d="M13 0C5.8 0 0 5.7 0 12.8 0 22.4 13 34 13 34s13-11.6 13-21.2C26 5.7 20.2 0 13 0z"/>' +
+    '<circle cx="13" cy="12.5" r="4.8" fill="#fff"/></svg>';
+
+  function makePin(d) {
+    const pin = document.createElement("div");
+    pin.className = "pin" + (d.open ? " open" : d.upcoming ? " upcoming" : "");
+    pin.style.setProperty("--tilt", `${d.tilt || 0}deg`);
+    const status = d.open ? "Registration open · " : d.upcoming ? "Upcoming · " : "";
+    const register = d.open
+      ? `<div class="tip-register-row"><a class="tip-register" href="${d.registration}" target="_blank" rel="noopener">Register ›</a>` +
+        (d.deadline_label ? `<span class="tip-deadline">Closes ${d.deadline_label}</span>` : "") + `</div>` : "";
+    pin.innerHTML = pinSvg +
+      `<div class="tip"><b>${d.title}</b><br>${status}${d.kind} · ${d.label}<br>${d.where}${register}</div>`;
+    pin.addEventListener("click", e => { if (!e.target.closest("a")) select(d.id, true); });
+    pins.set(d.id, pin);
+    return pin;
+  }
+
+  const globe = new Globe(el, { animateIn: true })
+    .backgroundColor("rgba(0,0,0,0)")
+    .showAtmosphere(true)
+    .atmosphereColor(BLUE)
+    .atmosphereAltitude(0.18)
+    .htmlElementsData(mapped)
+    .htmlLat("lat").htmlLng("lon").htmlAltitude(0)
+    .htmlElement(makePin)
+    // Hide pins on the far side of the globe
+    .htmlElementVisibilityModifier((pin, visible) => {
+      pin.style.opacity = visible ? 1 : 0;
+      pin.style.pointerEvents = visible ? "auto" : "none";
+    });
+
+  // Ocean colour and hexagon land, echoing the hex logo
+  const mat = globe.globeMaterial();
+  mat.color.set("#eef6f9");
+  if (mat.emissive) mat.emissive.set("#d3e8ef");
+  mat.emissiveIntensity = 0.25;
+
+  // Hexagon land when zoomed out; solid land when zoomed in close, where the
+  // hexagons become too coarse to show coastlines
+  let countries = [], solid = false;
+  fetch("data/countries.geojson")
+    .then(r => r.json())
+    .then(geo => {
+      countries = geo.features;
+      globe.hexPolygonsData(countries)
+        .hexPolygonResolution(3)
+        .hexPolygonMargin(0.35)
+        .hexPolygonAltitude(0.002)
+        .hexPolygonColor(() => BLUE)
+        .polygonCapColor(() => "#bfe0ea")
+        .polygonSideColor(() => "rgba(0,0,0,0)")
+        .polygonStrokeColor(() => "#8bc0cf")
+        .polygonAltitude(0.001);
+    });
+  function updateLand(altitude) {
+    const close = altitude < 0.3;
+    if (close !== solid && countries.length) {
+      solid = close;
+      globe.polygonsData(close ? countries : []).hexPolygonsData(close ? [] : countries);
+    }
+  }
+
+  const controls = globe.controls();
+  controls.autoRotate = true;
+  controls.autoRotateSpeed = 0.5;
+  // Zoom: pinch, the +/- buttons, or Ctrl/Cmd + scroll. A plain scroll keeps
+  // scrolling the page instead of getting stuck on the globe.
+  const R = globe.getGlobeRadius();
+  controls.enableZoom = true;
+  controls.minDistance = R * 1.01;   // ~60 km above the surface
+  controls.maxDistance = R * 4;
+  el.addEventListener("wheel", e => {
+    if (!e.ctrlKey && !e.metaKey) {
+      e.stopImmediatePropagation();
+      hint.classList.add("show");
+      clearTimeout(hint.timer);
+      hint.timer = setTimeout(() => hint.classList.remove("show"), 1200);
+    } else {
+      e.preventDefault();
+    }
+  }, { capture: true, passive: false });
+  const hint = el.parentElement.querySelector(".globe-hint");
+  el.parentElement.querySelectorAll(".globe-zoom button").forEach(b => b.addEventListener("click", () => {
+    const pov = globe.pointOfView();
+    const alt = b.dataset.zoom === "in" ? pov.altitude / 2 : pov.altitude * 2;
+    controls.autoRotate = false;
+    globe.pointOfView({ ...pov, altitude: Math.min(3, Math.max(0.01, alt)) }, 400);
+  }));
+  // Rotate more slowly when zoomed in
+  controls.addEventListener("change", () => {
+    const altitude = globe.pointOfView().altitude;
+    controls.rotateSpeed = Math.min(1, altitude * 0.6);
+    updateLand(altitude);
+  });
+  el.addEventListener("pointerdown", () => { controls.autoRotate = false; });
+
+  const baseAltitude = () => (el.clientWidth < 600 ? 2.3 : 1.6);
+  globe.pointOfView({ lat: 45, lng: 10, altitude: baseAltitude() });
+
+  function select(id, fromGlobe) {
+    pins.forEach((pin, key) => pin.classList.toggle("selected", key === id));
+    items.forEach(li => li.classList.toggle("selected", +li.dataset.id === id));
+    const d = mapped.find(e => e.id === id);
+    if (d) {
+      controls.autoRotate = false;
+      globe.pointOfView({ lat: d.lat, lng: d.lon, altitude: 0.35 }, 1200);
+    }
+    if (fromGlobe) {
+      const li = items.find(li => +li.dataset.id === id);
+      if (li) li.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+  }
+  items.forEach(li => li.addEventListener("click", e => {
+    if (e.target.closest("a")) return;  // let the registration link open normally
+    select(+li.dataset.id, false);
+  }));
+
+  const resize = () => globe.width(el.clientWidth).height(el.clientHeight);
+  resize();
+  window.addEventListener("resize", resize);
+})();
+</script>

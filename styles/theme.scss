@@ -1,0 +1,467 @@
+/*-- scss:defaults --*/
+
+// Brand colours and font follow bioconductor.org (style/base/colors.css and
+// fonts.css), so the site reads as part of Bioconductor. Brown is the frame of
+// the mia hex logo.
+$oma-blue:       #0087af;   // Bioconductor gradient blue
+$oma-teal:       #3792ad;   // Bioconductor primary
+$oma-deep:       #035771;   // Bioconductor primary-p400
+$oma-green:      #8aca25;   // Bioconductor secondary
+$oma-green-deep: #18a603;   // Bioconductor gradient green
+$oma-green-text: #547b17;   // Bioconductor secondary-s500, for green text
+$oma-brown:      #70441b;
+$oma-ink:        #121212;
+$oma-muted:      #5d657c;   // Bioconductor neutral
+$oma-blue-tint:  #ebf4f7;
+$oma-green-tint: #f3fae9;
+$brand-gradient: linear-gradient(90deg, #18a603, #0484a9, #0087af);
+
+@import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap");
+
+$font-family-sans-serif: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+$font-family-monospace: "JetBrains Mono", ui-monospace, monospace;
+
+$primary: $oma-blue;
+$success: $oma-green;
+$body-color: $oma-ink;
+$link-color: $oma-blue;
+$headings-font-weight: 700;
+
+$navbar-bg: #ffffff;
+$navbar-fg: $oma-ink;
+$navbar-hl: $oma-blue;
+$footer-bg: #121212;
+$footer-fg: #ffffff;
+
+/*-- scss:rules --*/
+
+html, body { overflow-x: clip; }
+
+// Header: white, frosted, with the Bioconductor gradient strip on top
+#quarto-header { border-top: 5px solid; border-image: $brand-gradient 1; }
+.navbar { background: rgba(255,255,255,.85) !important; backdrop-filter: saturate(160%) blur(14px); box-shadow: 0 1px 0 rgba(0,0,0,.05); }
+.navbar-brand img { max-height: 38px; }
+.navbar-title { font-weight: 700; }
+.navbar .nav-link:hover { text-decoration: underline; text-underline-offset: 7px; text-decoration-thickness: 3px; text-decoration-color: $oma-teal; }
+
+// Footer: as on bioconductor.org, near-black with a thick gradient border
+.nav-footer {
+  border-top: 10px solid; border-image: $brand-gradient 1;
+  padding-top: 1.5rem; padding-bottom: 1.5rem;
+  a { color: #fff; }
+}
+
+// Full-width bands
+.band {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  margin-left: -50vw;
+  padding: 4.5rem 1rem;
+  scroll-margin-top: calc(var(--nav-h, 62px) + 70px);
+  > .band-inner { max-width: 1140px; margin: 0 auto; }
+}
+.band-blue  { background: $oma-blue-tint; }
+.band-green { background: $oma-green-tint; }
+
+// Section headings with the Bioconductor gradient underline
+.band-inner > h2, .feature h2 {
+  display: inline-block; width: fit-content;
+  font-size: clamp(1.9rem, 3.4vw, 2.5rem); line-height: 1.2; margin: 0 0 1.2rem; padding-bottom: .25rem;
+  border-bottom: 4px solid; border-image: $brand-gradient 1;
+}
+.band-inner > p { max-width: 46rem; color: lighten($oma-ink, 18%); font-size: 1.08rem; }
+
+// Hero: Bioconductor gradient with the mia characters (images/hero-background.svg)
+.hero {
+  margin-top: -2rem;
+  padding: 5.5rem 1rem 6.5rem;
+  border-radius: 0 0 36px 36px;
+  color: #fff;
+  background:
+    linear-gradient(90deg, rgba($oma-deep, .55) 0%, rgba($oma-blue, .35) 45%, rgba($oma-blue, 0) 75%),
+    url("images/hero-background.svg") 0 0 / 900px 900px repeat,
+    linear-gradient(120deg, $oma-blue 0%, #0484a9 55%, $oma-green-deep 120%);
+  .band-inner { display: grid; grid-template-columns: 1.5fr 1fr; gap: 3rem; align-items: center; }
+  .hero-title { font-size: clamp(2.3rem, 5vw, 3.9rem); font-weight: 700; line-height: 1.05; margin: 0 0 1.2rem; color: #fff; border: 0; }
+  .lead { font-size: 1.22rem; color: rgba(255,255,255,.92); max-width: 36rem; }
+  .hero-logo { max-width: 260px; width: 100%; justify-self: center; filter: drop-shadow(0 20px 35px rgba(0,0,0,.35)); }
+  @media (max-width: 768px) {
+    background:
+      linear-gradient(rgba($oma-deep, .45), rgba($oma-deep, .45)),
+      url("images/hero-background.svg") 0 0 / 900px 900px repeat,
+      linear-gradient(160deg, $oma-blue 0%, $oma-green-deep 130%);
+    .band-inner { grid-template-columns: 1fr; }
+    .hero-logo { max-width: 160px; margin: 0 auto; display: block; }
+  }
+}
+// "A Bioconductor project" badge
+.bioc-badge {
+  display: inline-flex; align-items: center; gap: .55rem; margin-bottom: 1.4rem;
+  padding: .3rem 1rem .3rem .6rem; border-radius: 999px; background: #fff;
+  color: $oma-ink !important; text-decoration: none; font-size: .9rem; font-weight: 700;
+  box-shadow: 0 8px 20px rgba(0,0,0,.15); transition: transform .2s;
+  img { height: 34px; margin: 0; }
+  &:hover { transform: translateY(-2px); }
+  p & { margin: 0; }
+}
+.hero-text > p:first-child { margin: 0; }
+
+// Buttons: pill shapes with a chevron, as on bioconductor.org
+.cta-row { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.8rem; }
+.btn-oma {
+  display: inline-flex; align-items: center; gap: .55rem; padding: .9rem 1.7rem; border-radius: 999px;
+  font-weight: 700; text-decoration: none; transition: transform .2s ease, box-shadow .2s ease, background .3s ease;
+  &::after { content: "›"; font-size: 1.3em; line-height: 0; transition: transform .2s ease; }
+  &:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(0,0,0,.18); &::after { transform: translateX(3px); } }
+}
+.btn-white-oma { background: #fff; color: $oma-deep !important; &:hover { background: $oma-blue-tint; } }
+.btn-light-oma { background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.6); color: #fff !important; backdrop-filter: blur(6px);
+  &:hover { background: rgba(255,255,255,.24); } }
+.btn-gradient-oma { background: linear-gradient(90deg, #18a603, #0484a9, #0087af); color: #fff !important;
+  &:hover { background: linear-gradient(90deg, #0087af, #0484a9, #18a603); } }
+.btn-outline-oma {
+  border: 2px solid transparent; color: $oma-deep !important;
+  background: linear-gradient(#fff, #fff) padding-box, $brand-gradient border-box;
+}
+
+// Floating in-page contents, overlapping the bottom of the hero
+.section-nav {
+  position: sticky; top: calc(var(--nav-h, 62px) + 10px); z-index: 50;
+  width: fit-content; max-width: calc(100vw - 32px); margin: -28px auto 0;
+  display: flex; gap: .2rem; overflow-x: auto; scrollbar-width: none;
+  padding: .35rem; border-radius: 999px;
+  background: rgba(255,255,255,.88); backdrop-filter: saturate(160%) blur(14px);
+  border: 1px solid rgba(0,0,0,.06); box-shadow: 0 12px 30px rgba($oma-deep, .16);
+  a {
+    padding: .45rem 1rem; border-radius: 999px; font-weight: 700; font-size: .95rem; white-space: nowrap;
+    color: $oma-ink; text-decoration: none; transition: background .2s, color .2s;
+    &:hover { background: $oma-blue-tint; color: $oma-deep; }
+    &.active { background: $brand-gradient; color: #fff; }
+  }
+}
+
+// Book
+.feature { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
+.feature > * { min-width: 0; }
+@media (max-width: 768px) { .feature { grid-template-columns: 1fr; } }
+// Code example framed like an editor window
+.code-teaser div.sourceCode {
+  position: relative; border-radius: 18px; background: #fff; border: 1px solid rgba(0,0,0,.06);
+  padding-top: 2.2rem; box-shadow: 0 30px 60px rgba($oma-deep, .16);
+  &::before {
+    content: ""; position: absolute; top: .9rem; left: 1.1rem; width: 10px; height: 10px; border-radius: 50%;
+    background: #ff5f57; box-shadow: 16px 0 0 #febc2e, 32px 0 0 #28c840;
+  }
+}
+.code-teaser pre { padding: 1.2rem 1.4rem; margin: 0; font-size: .85rem; overflow-x: auto; }
+
+// Cards, with the circled arrow used on bioconductor.org link boxes
+$arrow-circle: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M8 12h8M13 8l4 4-4 4'/%3E%3C/svg%3E";
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.1rem; margin: 1.5rem 0 0; }
+.oma-card {
+  --c: #{$oma-blue};
+  position: relative; display: flex; flex-direction: column; background: #fff; border-radius: 20px;
+  border: 1px solid #e7e8ea;
+  padding: 1.5rem 3rem 1.5rem 1.5rem; color: $oma-ink !important; text-decoration: none; height: 100%;
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  &::after {
+    content: ""; position: absolute; top: 1.3rem; right: 1.2rem; width: 22px; height: 22px;
+    background: #a1a6b3; mask: url($arrow-circle) center / contain no-repeat; -webkit-mask: url($arrow-circle) center / contain no-repeat;
+    transition: background .25s, transform .25s;
+  }
+  &:hover {
+    transform: translateY(-4px); border-color: color-mix(in srgb, var(--c) 45%, white);
+    box-shadow: 0 18px 40px color-mix(in srgb, var(--c) 20%, transparent);
+    &::after { background: var(--c); transform: translateX(2px); }
+  }
+  &.c-green { --c: #{$oma-green-deep}; }
+  &.c-brown { --c: #{$oma-brown}; }
+  .card-title { display: block; font-size: 1.2rem; font-weight: 700; margin: 0 0 .35rem; overflow-wrap: anywhere; }
+  .tag + .card-title { font-family: $font-family-monospace; font-weight: 600; }
+  .card-text { display: block; font-size: .98rem; color: $oma-muted; }
+  .tag {
+    width: fit-content; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+    padding: .15rem .6rem; border-radius: 999px; margin-bottom: .7rem;
+    color: var(--c); background: color-mix(in srgb, var(--c) 12%, white);
+  }
+  .icon {
+    width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; margin-bottom: .9rem;
+    font-size: 1.3rem; color: #fff; background: var(--c);
+  }
+}
+
+// Workshops
+.workshop-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin: 1.5rem 0 .5rem; align-items: stretch; }
+.workshop-grid > * { min-width: 0; }
+@media (max-width: 900px) { .workshop-grid { grid-template-columns: 1fr; } }
+.map-card, .recent {
+  background: #fff; border-radius: 20px; border: 1px solid #e7e8ea; padding: 1rem;
+  box-shadow: 0 10px 30px rgba($oma-deep, .07);
+}
+.map-card { position: relative; overflow: hidden; background: radial-gradient(circle at 50% 50%, #ffffff 0%, $oma-blue-tint 100%); }
+#globe { width: 100%; height: 440px; cursor: grab; }
+#globe:active { cursor: grabbing; }
+.globe-zoom {
+  position: absolute; right: 1rem; bottom: 1rem; display: flex; flex-direction: column; gap: .35rem; z-index: 3;
+  button {
+    width: 34px; height: 34px; border-radius: 10px; border: 1px solid #e7e8ea; background: #fff;
+    font-size: 1.2rem; font-weight: 700; line-height: 1; color: $oma-deep; cursor: pointer;
+    box-shadow: 0 4px 12px rgba($oma-deep, .12); transition: background .15s;
+    &:hover { background: $oma-blue-tint; }
+  }
+}
+.globe-hint {
+  position: absolute; left: 50%; bottom: 1rem; transform: translateX(-50%); z-index: 3;
+  padding: .35rem .8rem; border-radius: 999px; background: rgba($oma-ink, .8); color: #fff; font-size: .85rem;
+  opacity: 0; pointer-events: none; transition: opacity .2s;
+  &.show { opacity: 1; }
+}
+// Map pins (scripts/globe.html)
+.pin {
+  position: relative; width: 15px; height: 20px; transform: translate(-50%, -100%); cursor: pointer;
+  pointer-events: auto; transition: opacity .25s;
+  // --tilt fans out pins of workshops held in the same city
+  svg { display: block; width: 100%; height: 100%; filter: drop-shadow(0 3px 3px rgba(0,0,0,.3)); transition: transform .2s; transform-origin: 50% 100%; transform: rotate(var(--tilt, 0deg)); }
+  .pin-body { fill: $oma-green-deep; transition: fill .2s; }
+  &:hover svg { transform: rotate(var(--tilt, 0deg)) scale(1.2); }
+  &.upcoming .pin-body { fill: $oma-blue; }
+  &.upcoming::before, &.open::before {
+    content: ""; position: absolute; left: 50%; bottom: -5px; width: 10px; height: 10px; margin-left: -5px;
+    border-radius: 50%; background: rgba($oma-blue, .5); animation: pin-pulse 1.8s ease-out infinite;
+  }
+  &.open .pin-body { fill: $oma-brown; }
+  &.open::before { background: rgba($oma-brown, .5); }
+  &.selected { z-index: 2; svg { transform: rotate(var(--tilt, 0deg)) scale(1.4); filter: drop-shadow(0 0 0 #fff) drop-shadow(0 4px 6px rgba(0,0,0,.45)); } }
+  .tip {
+    display: none; position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%); white-space: nowrap;
+    background: $oma-ink; color: #fff; padding: 7px 10px; border-radius: 8px; font-size: 13px; line-height: 1.35;
+    pointer-events: none;
+  }
+  // Pins with open registration: the hover card stays open and links to registration
+  &.open .tip { pointer-events: auto; bottom: 100%; margin-bottom: 4px; }
+  &.open .tip::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 8px; }
+  .tip-register-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+  .tip-deadline { font-size: 12px; opacity: .75; }
+  .tip-register {
+    display: inline-block; padding: 3px 10px; border-radius: 999px; font-weight: 700;
+    background: $oma-brown; color: #fff !important; text-decoration: none;
+    &:hover { background: lighten($oma-brown, 8%); }
+  }
+  &:hover .tip, &.selected .tip { display: block; }
+}
+@keyframes pin-pulse { from { transform: scale(.4); opacity: 1; } to { transform: scale(2.6); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .pin.upcoming::before { animation: none; } }
+.dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; flex: 0 0 11px; }
+.recent {
+  display: flex; flex-direction: column; padding: 1.2rem .6rem 1.2rem 1.3rem;
+  h4 { font-size: .8rem; text-transform: uppercase; letter-spacing: .1em; color: $oma-green-text; margin: 0 0 .6rem; }
+}
+// Scrollable list of all workshops, as tall as the globe
+.event-group {
+  position: sticky; top: 0; z-index: 1; background: #fff; padding: .5rem .5rem .3rem;
+  font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: $oma-muted;
+}
+.legend-open, .legend-upcoming, .legend-past { font-size: .82rem; font-weight: 700; margin-right: .8rem; }
+.legend-upcoming { color: $oma-blue; }
+.legend-open { color: $oma-brown; }
+.legend-past { color: $oma-green-deep; }
+.recent > p { margin: 0 0 .4rem; }
+.event-list { max-height: 440px; overflow-y: auto; padding-right: .5rem; scrollbar-width: thin; scrollbar-color: rgba($oma-blue, .4) transparent; }
+.event {
+  display: flex; gap: .7rem; align-items: baseline; padding: .55rem .5rem; border-radius: 10px; cursor: pointer;
+  border-bottom: 1px solid rgba(0,0,0,.05); transition: background .15s;
+  &:hover { background: $oma-green-tint; }
+  // The selected workshop is highlighted in its own colour:
+  // green for past, blue for upcoming, brown for registration open
+  &.selected { background: $oma-green-tint; box-shadow: inset 3px 0 0 $oma-green-deep; }
+  &.upcoming.selected { background: $oma-blue-tint; box-shadow: inset 3px 0 0 $oma-blue; }
+  &.online { cursor: default; .dot { background: transparent; border: 2px solid $oma-green-deep; } }
+  .dot { background: $oma-green-deep; transform: translateY(1px); }
+  &.upcoming {
+    background: $oma-blue-tint; border-bottom-color: transparent; margin-bottom: .3rem;
+    .dot { background: $oma-blue; box-shadow: 0 0 0 4px rgba($oma-blue, .2); }
+    .event-title { color: $oma-deep; }
+    &:hover { background: darken($oma-blue-tint, 3%); }
+  }
+  &.open {
+    background: color-mix(in srgb, #{$oma-brown} 8%, white);
+    .dot { background: $oma-brown; box-shadow: 0 0 0 4px rgba($oma-brown, .2); }
+    .event-title { color: $oma-brown; }
+    &:hover { background: color-mix(in srgb, #{$oma-brown} 13%, white); }
+    &.selected { background: color-mix(in srgb, #{$oma-brown} 14%, white); box-shadow: inset 3px 0 0 $oma-brown; }
+  }
+  .event-title { display: block; font-weight: 700; line-height: 1.3; }
+  .register-row { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .7rem; margin-top: .5rem; }
+  .deadline { font-size: .76rem; color: $oma-muted; white-space: nowrap; }
+  .register {
+    display: inline-flex; align-items: center; gap: .25rem; padding: .18rem .7rem;
+    border-radius: 999px; font-size: .76rem; font-weight: 700; text-decoration: none; color: #fff !important;
+    background: $oma-brown;
+    &::after { content: "›"; font-size: 1.2em; line-height: 0; }
+    &:hover { background: lighten($oma-brown, 8%); }
+  }
+  .event-meta { display: block; font-size: .85rem; color: $oma-muted; }
+}
+
+// Publications
+.pub {
+  background: #fff; border-radius: 20px; border: 1px solid #e7e8ea; border-left: 5px solid $oma-green-deep;
+  padding: 1.1rem 1.3rem; margin-bottom: 1rem; max-width: 52rem;
+  p { margin: 0; }
+  .venue { font-size: .88rem; color: $oma-muted; }
+}
+.pub-badge {
+  display: inline-block; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+  padding: .15rem .6rem; border-radius: 999px; margin-bottom: .5rem;
+  background: $oma-green-tint; color: $oma-green-text;
+  &.brown { background: color-mix(in srgb, #{$oma-brown} 12%, white); color: $oma-brown; }
+}
+
+// Contributors: compact name chips; affiliation shows on hover
+.people { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: 1.5rem; }
+.people p { display: contents; }
+.person {
+  display: inline-flex; align-items: center; gap: .45rem; padding: .25rem .8rem .25rem .25rem;
+  border-radius: 999px; background: #fff; border: 1px solid #e7e8ea; font-size: .9rem;
+  transition: border-color .15s;
+  &:hover { border-color: $oma-teal; }
+  a { text-decoration: none; }
+}
+.person .avatar {
+  flex: 0 0 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; overflow: hidden;
+  font-size: .7rem; font-weight: 700; color: #fff; background: linear-gradient(135deg, #0087af, #18a603);
+  img { display: block; width: 100%; height: 100%; object-fit: cover; margin: 0; }
+}
+.small-note { display: block; margin-top: 1.2rem; font-size: .92rem; color: $oma-muted; }
+
+// Funder logos in the footer, each on a small white tile
+.footer-funders {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .6rem;
+  p { display: contents; }
+  span { font-size: .85rem; opacity: .8; margin-right: .3rem; }
+  a { display: grid; place-items: center; height: 46px; padding: 6px 12px; border-radius: 10px; background: #fff; transition: transform .2s; }
+  a:hover { transform: translateY(-2px); }
+  img { max-height: 34px; max-width: 130px; margin: 0; }
+}
+.nav-footer .nav-footer-center { flex: 1 1 auto; }
+
+// Mascots: the characters of the mia logo peeking out from behind elements
+.code-teaser, .workshop-grid, #contact > .band-inner { position: relative; }
+.code-teaser div.sourceCode, .workshop-grid > .map-card, .workshop-grid > .recent { position: relative; z-index: 1; }
+// (Pandoc wraps each image in a <p>; keep those out of the layout)
+p:has(> .mascot) { margin: 0; height: 0; }
+.workshop-grid > p:has(> .mascot) { position: absolute; inset: 0 0 auto auto; width: 0; }
+.mascot {
+  display: block;
+  position: absolute; z-index: 0; pointer-events: auto; margin: 0;
+  filter: drop-shadow(0 8px 10px rgba(0,0,0,.15));
+  transition: transform .4s cubic-bezier(.34,1.56,.64,1);
+}
+.mascot img { display: block; width: 100%; margin: 0; }
+// The outer span keeps a steady hover area; the inner body does the moving
+.mascot-body { position: relative; display: block; }
+// Open eyes and mouth (inline SVG over the character), shown on hover
+.mascot .face { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity .12s; }
+.mascot .face .pupil { fill: #1a1a1a; }
+.mascot .eye, .mascot .pupil { transform-box: fill-box; transform-origin: center; }
+
+// Green: opens its eyes and gives one quick wink
+.mascot-hat .face { transition: opacity .6s ease; }
+.mascot-hat:hover .face { opacity: 1; }
+.mascot-hat:hover .wink { animation: wink 2.4s ease-in-out .8s both; }
+@keyframes wink {
+  0%, 30%, 70%, 100% { opacity: 1; transform: scaleY(1); }
+  42%, 58% { opacity: 0; transform: scaleY(.4); }
+}
+
+// Blue: the face morphs from grumpy to surprised, looks at you, and morphs
+// smoothly back. The face is always drawn (over a faceless copy of the virus),
+// so there is no cross-fade between two different drawings.
+.mascot-virus .face { opacity: 1; }
+.mascot-virus :is(.iris, .sclera, .look, .brow, .o-mouth, .frown) { transform-box: fill-box; transform-origin: center; }
+.mascot-virus .o-mouth { transform: scale(0); }
+.mascot-virus .sclera { transform: scale(.85); }
+$v-time: 5s;
+.mascot-virus:hover {
+  .iris    { animation: v-iris $v-time both; }
+  .sclera  { animation: v-sclera $v-time both; }
+  .look    { animation: v-look $v-time both; }
+  .brow-l  { animation: v-brow-l $v-time both; }
+  .brow-r  { animation: v-brow-r $v-time both; }
+  .frown   { animation: v-frown $v-time both; }
+  .o-mouth { animation: v-mouth $v-time both; }
+}
+// 0-7%: quick surprise; 7-40%: hold (glance, then look at you); 40-85%: slow return
+@mixin v-keys($name, $grumpy, $surprised) {
+  @keyframes #{$name} {
+    0%   { #{nth($grumpy, 1)}: nth($grumpy, 2); animation-timing-function: ease-out; }
+    7%, 48% { #{nth($surprised, 1)}: nth($surprised, 2); animation-timing-function: ease-in-out; }
+    85%, 100% { #{nth($grumpy, 1)}: nth($grumpy, 2); }
+  }
+}
+@include v-keys(v-iris,   (transform, scale(1)), (transform, scale(.4)));
+@include v-keys(v-sclera, (transform, scale(.85)), (transform, scale(1.22)));
+// Eyebrows rise and flatten (the angry slant is about 30 degrees)
+@include v-keys(v-brow-l, (transform, none), (transform, translate(-6px, -56px) rotate(-44deg)));
+@include v-keys(v-brow-r, (transform, none), (transform, translate(6px, -56px) rotate(44deg)));
+// The frown shrinks into the centre of the mouth while the "O" grows from it
+@include v-keys(v-frown, (transform, scale(1)), (transform, translateY(17px) scale(.2)));
+@include v-keys(v-mouth,  (transform, scale(0)), (transform, scale(1.35)));
+@keyframes v-look {
+  0%, 7%, 14% { transform: translate(12px, 0); }
+  24%, 100% { transform: translate(0, 0); }
+}
+
+// Idle: an occasional peek; hover: a gentle hop and sway
+.mascot-hat { width: 92px; top: -86px; right: 40px; }
+.mascot-hat .mascot-body { transform: rotate(14deg); animation: peek-hat 8s ease-in-out infinite; }
+.mascot-hat:hover .mascot-body { animation-play-state: paused; }
+@keyframes peek-hat {
+  0%, 75%, 100% { transform: rotate(14deg) translateY(0); }
+  84% { transform: rotate(10deg) translateY(-6px); }
+}
+.mascot-virus { width: 84px; top: -68px; right: 26px; }
+.mascot-virus .mascot-body { transform: rotate(43deg); animation: wobble-virus 7s ease-in-out infinite; }
+// The idle wobble on .mascot-body is never interrupted; the startle lift runs on
+// an inner layer, so the angle doesn't jump when the hover starts or ends
+.mascot-lift { position: relative; display: block; }
+.mascot-virus:hover .mascot-lift { animation: startle-virus 2s ease-out 1; }
+@keyframes wobble-virus {
+  0%, 100% { transform: rotate(46deg); }
+  50% { transform: rotate(40deg) translateY(-2px); }
+}
+@keyframes startle-virus {
+  0% { translate: 0 0; scale: 1; }
+  10% { translate: 0 -16px; scale: 1.12; }
+  30% { translate: 0 -8px; scale: 1.06; }
+  100% { translate: 0 0; scale: 1; }
+}
+.workshop-grid .mascot-virus { right: 26px; }
+.mascot-bow {
+  width: 150px; right: 8%; top: 50%; transform: translateY(-50%) rotate(-18deg);
+  animation: mascot-float 5s ease-in-out infinite;
+}
+@keyframes mascot-float {
+  0%, 100% { transform: translateY(-50%) rotate(-18deg); }
+  50% { transform: translateY(calc(-50% - 12px)) rotate(-12deg); }
+}
+@media (max-width: 900px) {
+  .mascot-bow { display: none; }
+  .mascot-virus { width: 64px; top: -44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mascot, .mascot-body, .mascot-bow, .mascot .pupil, .mascot .eye { animation: none !important; transition: none; }
+}
+
+// Sections fade in as they scroll into view (see scripts/section-nav.html)
+.js-reveal .band:not(.hero) > .band-inner { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
+.js-reveal .band.revealed > .band-inner { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .js-reveal .band:not(.hero) > .band-inner { opacity: 1; transform: none; transition: none; }
+}
+
+// Let the last band (Contact) sit directly on the footer
+// (Quarto's page grid reserves a 60px bottom row)
+#quarto-content.page-rows-contents { grid-template-rows: [content-top] auto [content-bottom] 0 [page-bottom]; }
+main#quarto-document-content { margin-bottom: 0; }

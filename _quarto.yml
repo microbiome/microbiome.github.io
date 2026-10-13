@@ -1,0 +1,61 @@
+project:
+  type: website
+  output-dir: _site
+  resources:
+    - data/countries.geojson
+    - images/funders/*
+    - images/bioconductor.svg
+    - images/characters/*
+
+website:
+  title: "OMA"
+  description: "Orchestrating Microbiome Analysis with Bioconductor: open tools, an online book and a community for microbiome data science."
+  site-url: https://microbiome.github.io
+  repo-url: https://github.com/microbiome/microbiome.github.com
+  favicon: images/mia_logo.png
+  open-graph: true
+  twitter-card: true
+  page-navigation: false
+  navbar:
+    logo: images/mia_logo.png
+    title: "OMA"
+    pinned: true
+    # The in-page contents bar (index.qmd) links to the sections.
+    # Blog lives on a separate site; add it here when it exists:
+    # left:
+    #   - text: "Blog"
+    #     href: https://<blog-url>
+    right:
+      - icon: github
+        href: https://github.com/microbiome
+        aria-label: GitHub
+      - icon: chat-dots
+        href: https://community-bioc.zulipchat.com/
+        aria-label: Zulip chat
+  page-footer:
+    left: |
+      © OMA consortium · Content under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)<br>
+      A [Bioconductor](https://bioconductor.org) project
+    center: |
+      <div class="footer-funders">
+      <span>Supported by</span>
+      <a href="https://www.aka.fi/en/"><img src="images/funders/research-council-of-finland.jpg" alt="Research Council of Finland"></a>
+      <a href="https://findingpheno.eu/"><img src="images/funders/findingpheno.png" alt="FindingPheno"></a>
+      <a href="https://www.ml4microbiome.eu/"><img src="images/funders/ml4microbiome.png" alt="ML4Microbiome"></a>
+      </div>
+    right: |
+      [Edit this site](https://github.com/microbiome/microbiome.github.com)
+
+format:
+  html:
+    theme:
+      light: [cosmo, styles/theme.scss]
+    toc: false
+    smooth-scroll: true
+    link-external-newwindow: true
+
+execute:
+  echo: false
+  warning: false
+  message: false
+  freeze: false

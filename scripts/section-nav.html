@@ -1,0 +1,34 @@
+<script>
+// Keep the contents bar just below the navbar and highlight the section in view.
+(function () {
+  const nav = document.querySelector(".section-nav");
+  if (!nav) return;
+  const header = document.getElementById("quarto-header");
+  const setOffset = () =>
+    document.documentElement.style.setProperty("--nav-h", (header ? header.offsetHeight : 0) + "px");
+  setOffset();
+  window.addEventListener("resize", setOffset);
+
+  const links = [...nav.querySelectorAll("a")];
+  const sections = links.map(a => document.querySelector(a.getAttribute("href")));
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      links.forEach(a => a.classList.toggle("active", a.getAttribute("href") === "#" + e.target.id));
+    });
+  }, { rootMargin: "-40% 0px -55% 0px" });
+  sections.forEach(s => s && observer.observe(s));
+})();
+
+// Fade sections in as they enter the viewport.
+(function () {
+  if (!("IntersectionObserver" in window)) return;
+  document.documentElement.classList.add("js-reveal");
+  const reveal = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add("revealed"); reveal.unobserve(e.target); }
+    });
+  }, { rootMargin: "0px 0px -10% 0px" });
+  document.querySelectorAll(".band:not(.hero)").forEach(b => reveal.observe(b));
+})();
+</script>

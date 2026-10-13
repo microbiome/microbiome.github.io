@@ -447,7 +447,9 @@ $v-time: 5s;
   50% { transform: translateY(calc(-50% - 12px)) rotate(-12deg); }
 }
 @media (max-width: 900px) {
-  .mascot-bow { display: none; }
+  // On narrow screens the cards fill the width, so float a smaller one beside the heading
+  .mascot-bow { width: 78px; top: 3rem; right: 1.2rem; }
+  #contact .band-inner > p:not(:has(.mascot)) { padding-right: 84px; }
   .mascot-virus { width: 64px; top: -44px; }
 }
 @media (prefers-reduced-motion: reduce) {

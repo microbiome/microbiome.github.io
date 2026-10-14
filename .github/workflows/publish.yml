@@ -2,9 +2,9 @@ name: Render and deploy site
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
-    branches: [master]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -44,7 +44,7 @@ jobs:
           path: _site
 
   deploy:
-    # Only publish from master; pull requests just check that the site renders.
+    # Only publish from main; pull requests just check that the site renders.
     if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest

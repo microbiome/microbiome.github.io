@@ -1,7 +1,8 @@
 <script src="https://cdn.jsdelivr.net/npm/globe.gl@2.46.1/dist/globe.gl.min.js"></script>
 <script>
-// 3D globe of workshops with map pins. Data comes from data/events.csv via
-// window.omaEvents. Clicking a pin or a list item selects the workshop in both.
+// 3D globe of workshops with map pins; nearby pins merge into clusters. Data
+// comes from data/events.csv via window.omaEvents. Clicking a pin or a list
+// item selects the workshop in both.
 (function () {
   if (!window.omaEvents) return;
 
@@ -41,26 +42,108 @@
 
   const BLUE = "#0087af";  // Bioconductor blue, see styles/theme.scss
   const items = [...document.querySelectorAll(".event[data-id]")];
-  const pins = new Map();
+  let selected = [];  // ids of the selected workshops
+
+  // Workshops held in the same place, sorted with open registrations first,
+  // then upcoming (soonest first), then past (newest first)
+  const rank = d => (d.open ? 0 : d.upcoming ? 1 : 2);
+  const places = [];
+  mapped.forEach(d => {
+    let p = places.find(p => p.lat === d.lat && p.lon === d.lon);
+    if (!p) places.push(p = { lat: d.lat, lon: d.lon, where: d.where, events: [] });
+    p.events.push(d);
+  });
+  places.sort((a, b) => b.events.length - a.events.length);
+
+  // Angular distance between two points in degrees
+  const rad = Math.PI / 180;
+  function distance(a, b) {
+    const h = Math.sin((b.lat - a.lat) * rad / 2) ** 2 +
+      Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin((b.lon - a.lon) * rad / 2) ** 2;
+    return 2 * Math.asin(Math.sqrt(h)) / rad;
+  }
+
+  // Places that are close to each other on screen are merged into a cluster
+  // that shows the number of workshops, as in Leaflet.markercluster. The
+  // merging distance shrinks when zooming in, so clusters split into pins.
+  const CLUSTER_DEGREES = 5;  // merging distance at altitude 1
+  function cluster(altitude) {
+    const max = CLUSTER_DEGREES * altitude;
+    const groups = [];
+    places.forEach(p => {
+      const g = groups.find(g => distance(g.places[0], p) < max);
+      if (g) g.places.push(p); else groups.push({ places: [p] });
+    });
+    return groups.map(g => {
+      const events = g.places.flatMap(p => p.events);
+      events.sort((a, b) => rank(a) - rank(b) ||
+        (a.upcoming ? a.start.localeCompare(b.start) : b.start.localeCompare(a.start)));
+      return {
+        key: g.places.map(p => p.where).join("|"),
+        lat: g.places.reduce((s, p) => s + p.lat, 0) / g.places.length,
+        lon: g.places.reduce((s, p) => s + p.lon, 0) / g.places.length,
+        places: g.places,
+        events,
+        spread: Math.max(0, ...g.places.map(p => distance(g.places[0], p))),
+        status: events[0].open ? "open" : events[0].upcoming ? "upcoming" : "",
+      };
+    });
+  }
 
   const pinSvg =
     '<svg viewBox="0 0 26 34" aria-hidden="true">' +
     '<path class="pin-body" d="M13 0C5.8 0 0 5.7 0 12.8 0 22.4 13 34 13 34s13-11.6 13-21.2C26 5.7 20.2 0 13 0z"/>' +
     '<circle cx="13" cy="12.5" r="4.8" fill="#fff"/></svg>';
 
-  function makePin(d) {
-    const pin = document.createElement("div");
-    pin.className = "pin" + (d.open ? " open" : d.upcoming ? " upcoming" : "");
-    pin.style.setProperty("--tilt", `${d.tilt || 0}deg`);
+  function tipEntry(d, where) {
     const status = d.open ? "Registration open · " : d.upcoming ? "Upcoming · " : "";
     const register = d.open
-      ? `<div class="tip-register-row"><a class="tip-register" href="${d.registration}" target="_blank" rel="noopener">Register ›</a>` +
-        (d.deadline_label ? `<span class="tip-deadline">Closes ${d.deadline_label}</span>` : "") + `</div>` : "";
-    pin.innerHTML = pinSvg +
-      `<div class="tip"><b>${d.title}</b><br>${status}${d.kind} · ${d.label}<br>${d.where}${register}</div>`;
-    pin.addEventListener("click", e => { if (!e.target.closest("a")) select(d.id, true); });
-    pins.set(d.id, pin);
-    return pin;
+      ? `<div class="tip-register-row"><a class="tip-register" href="${esc(d.registration)}" target="_blank" rel="noopener">Register ›</a>` +
+        (d.deadline_label ? `<span class="tip-deadline">Closes ${esc(d.deadline_label)}</span>` : "") + `</div>` : "";
+    return `<div class="tip-event"><b>${esc(d.title)}</b><br>${status}${esc(d.kind)} · ${esc(d.label)}` +
+      (where ? ` · ${esc(d.where)}` : "") + `${register}</div>`;
+  }
+
+  // Hover card listing the workshops of a pin or cluster
+  const TIP_MAX = 5;
+  function tip(c) {
+    const several = c.places.length > 1;
+    const more = c.events.length - TIP_MAX;
+    return `<div class="tip">${c.events.slice(0, TIP_MAX).map(d => tipEntry(d, several)).join("")}` +
+      (more > 0 ? `<div class="tip-where">and ${more} more${several ? " · click to zoom in" : ""}</div>` : "") +
+      (several ? "" : `<div class="tip-where">${esc(c.places[0].where)}</div>`) + `</div>`;
+  }
+
+  // A single workshop is a pin; several are a circle with their number
+  function makeMarker(c) {
+    const marker = document.createElement("div");
+    const single = c.events.length === 1;
+    marker.className = (single ? "pin" : "cluster") + (c.status ? " " + c.status : "");
+    marker.innerHTML = (single ? pinSvg : `<span class="cluster-count">${c.events.length}</span>`) + tip(c);
+    if (!single) marker.setAttribute("aria-label", `${c.events.length} workshops`);
+    marker.ids = c.events.map(d => d.id);
+    marker.classList.toggle("selected", marker.ids.includes(selected[0]));
+    marker.addEventListener("click", e => {
+      if (e.target.closest("a")) return;
+      if (c.spread > 0) {
+        // Zoom in until the cluster splits
+        controls.autoRotate = false;
+        globe.pointOfView({ lat: c.lat, lng: c.lon, altitude: Math.max(0.02, c.spread / CLUSTER_DEGREES * 0.7) }, 1000);
+        select(marker.ids, true, false);
+      } else {
+        select(marker.ids, true);
+      }
+    });
+    return marker;
+  }
+
+  let clusterKey = "";
+  function updateClusters(altitude) {
+    const clusters = cluster(altitude);
+    const key = clusters.map(c => c.key).join("/");
+    if (key === clusterKey) return;
+    clusterKey = key;
+    globe.htmlElementsData(clusters);
   }
 
   const globe = new Globe(el, { animateIn: true })
@@ -68,13 +151,12 @@
     .showAtmosphere(true)
     .atmosphereColor(BLUE)
     .atmosphereAltitude(0.18)
-    .htmlElementsData(mapped)
     .htmlLat("lat").htmlLng("lon").htmlAltitude(0)
-    .htmlElement(makePin)
+    .htmlElement(makeMarker)
     // Hide pins on the far side of the globe
-    .htmlElementVisibilityModifier((pin, visible) => {
-      pin.style.opacity = visible ? 1 : 0;
-      pin.style.pointerEvents = visible ? "auto" : "none";
+    .htmlElementVisibilityModifier((marker, visible) => {
+      marker.style.opacity = visible ? 1 : 0;
+      marker.style.pointerEvents = visible ? "auto" : "none";
     });
 
   // Ocean colour and hexagon land, echoing the hex logo
@@ -139,28 +221,32 @@
     const altitude = globe.pointOfView().altitude;
     controls.rotateSpeed = Math.min(1, altitude * 0.6);
     updateLand(altitude);
+    updateClusters(altitude);
   });
   el.addEventListener("pointerdown", () => { controls.autoRotate = false; });
 
   const baseAltitude = () => (el.clientWidth < 600 ? 2.3 : 1.6);
   globe.pointOfView({ lat: 45, lng: 10, altitude: baseAltitude() });
+  updateClusters(baseAltitude());
 
-  function select(id, fromGlobe) {
-    pins.forEach((pin, key) => pin.classList.toggle("selected", key === id));
-    items.forEach(li => li.classList.toggle("selected", +li.dataset.id === id));
-    const d = mapped.find(e => e.id === id);
-    if (d) {
+  // Select workshops (all in a pin or cluster when it is clicked) on the globe and in the list
+  function select(ids, fromGlobe, fly = true) {
+    selected = ids;
+    el.querySelectorAll(".pin, .cluster").forEach(m => m.classList.toggle("selected", m.ids.includes(ids[0])));
+    items.forEach(li => li.classList.toggle("selected", ids.includes(+li.dataset.id)));
+    const d = mapped.find(e => e.id === ids[0]);
+    if (d && fly) {
       controls.autoRotate = false;
       globe.pointOfView({ lat: d.lat, lng: d.lon, altitude: 0.35 }, 1200);
     }
     if (fromGlobe) {
-      const li = items.find(li => +li.dataset.id === id);
+      const li = items.find(li => ids.includes(+li.dataset.id));
       if (li) li.scrollIntoView({ block: "nearest", behavior: "smooth" });
     }
   }
   items.forEach(li => li.addEventListener("click", e => {
     if (e.target.closest("a")) return;  // let the registration link open normally
-    select(+li.dataset.id, false);
+    select([+li.dataset.id], false);
   }));
 
   const resize = () => globe.width(el.clientWidth).height(el.clientHeight);

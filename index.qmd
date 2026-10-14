@@ -37,16 +37,6 @@ events <- events[order(events$sort_date, decreasing = TRUE), ]
 events$id <- seq_len(nrow(events))
 events$start <- format(events$sort_date)
 events$deadline <- events$registration_deadline
-
-# Workshops held in the same city share its location; their pins are tilted
-# in a fan so they can be told apart
-events$tilt <- 0
-key <- paste(events$lat, events$lon)
-for (k in unique(key[!is.na(events$lat)])) {
-  i <- which(key == k)
-  if (length(i) < 2) next
-  events$tilt[i] <- round(seq(-1, 1, length.out = length(i)) * min(45, 15 * (length(i) - 1)))
-}
 ```
 
 ::: {.band .hero}
@@ -177,7 +167,7 @@ universities and companies. Drag or zoom the globe to explore, or pick a worksho
 ```{r}
 #| output: asis
 workshops <- events[, c("id", "title", "kind", "label", "where", "lat", "lon", "start",
-                        "registration", "deadline", "deadline_label", "tilt")]
+                        "registration", "deadline", "deadline_label")]
 cat('<div id="globe" role="img" aria-label="Globe showing workshop locations"></div>\n')
 cat('<div class="globe-zoom"><button type="button" data-zoom="in" aria-label="Zoom in">+</button>',
     '<button type="button" data-zoom="out" aria-label="Zoom out">&minus;</button></div>\n',

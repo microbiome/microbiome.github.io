@@ -217,22 +217,9 @@ $arrow-circle: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vie
   opacity: 0; pointer-events: none; transition: opacity .2s;
   &.show { opacity: 1; }
 }
-// Map pins (scripts/globe.html)
-.pin {
-  position: relative; width: 15px; height: 20px; transform: translate(-50%, -100%); cursor: pointer;
-  pointer-events: auto; transition: opacity .25s;
-  // --tilt fans out pins of workshops held in the same city
-  svg { display: block; width: 100%; height: 100%; filter: drop-shadow(0 3px 3px rgba(0,0,0,.3)); transition: transform .2s; transform-origin: 50% 100%; transform: rotate(var(--tilt, 0deg)); }
-  .pin-body { fill: $oma-green-deep; transition: fill .2s; }
-  &:hover svg { transform: rotate(var(--tilt, 0deg)) scale(1.2); }
-  &.upcoming .pin-body { fill: $oma-blue; }
-  &.upcoming::before, &.open::before {
-    content: ""; position: absolute; left: 50%; bottom: -5px; width: 10px; height: 10px; margin-left: -5px;
-    border-radius: 50%; background: rgba($oma-blue, .5); animation: pin-pulse 1.8s ease-out infinite;
-  }
-  &.open .pin-body { fill: $oma-brown; }
-  &.open::before { background: rgba($oma-brown, .5); }
-  &.selected { z-index: 2; svg { transform: rotate(var(--tilt, 0deg)) scale(1.4); filter: drop-shadow(0 0 0 #fff) drop-shadow(0 4px 6px rgba(0,0,0,.45)); } }
+// Map pins and clusters of nearby pins (scripts/globe.html)
+.pin, .cluster {
+  position: relative; cursor: pointer; pointer-events: auto; transition: opacity .25s;
   .tip {
     display: none; position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%); white-space: nowrap;
     background: $oma-ink; color: #fff; padding: 7px 10px; border-radius: 8px; font-size: 13px; line-height: 1.35;
@@ -241,6 +228,8 @@ $arrow-circle: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vie
   // Pins with open registration: the hover card stays open and links to registration
   &.open .tip { pointer-events: auto; bottom: 100%; margin-bottom: 4px; }
   &.open .tip::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 8px; }
+  .tip-event + .tip-event { margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(#fff, .2); }
+  .tip-where { margin-top: 4px; opacity: .75; }
   .tip-register-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
   .tip-deadline { font-size: 12px; opacity: .75; }
   .tip-register {
@@ -249,6 +238,36 @@ $arrow-circle: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' vie
     &:hover { background: lighten($oma-brown, 8%); }
   }
   &:hover .tip, &.selected .tip { display: block; }
+  &.selected { z-index: 2; }
+}
+.pin {
+  width: 15px; height: 20px; transform: translate(-50%, -100%);
+  svg { display: block; width: 100%; height: 100%; filter: drop-shadow(0 3px 3px rgba(0,0,0,.3)); transition: transform .2s; transform-origin: 50% 100%; }
+  .pin-body { fill: $oma-green-deep; transition: fill .2s; }
+  &:hover svg { transform: scale(1.2); }
+  &.upcoming .pin-body { fill: $oma-blue; }
+  &.upcoming::before, &.open::before {
+    content: ""; position: absolute; left: 50%; bottom: -5px; width: 10px; height: 10px; margin-left: -5px;
+    border-radius: 50%; background: rgba($oma-blue, .5); animation: pin-pulse 1.8s ease-out infinite;
+  }
+  &.open .pin-body { fill: $oma-brown; }
+  &.open::before { background: rgba($oma-brown, .5); }
+  &.selected svg { transform: scale(1.4); filter: drop-shadow(0 0 0 #fff) drop-shadow(0 4px 6px rgba(0,0,0,.45)); }
+}
+// Number of workshops in a cluster, as in Leaflet.markercluster
+.cluster {
+  width: 30px; height: 30px; transform: translate(-50%, -50%); border-radius: 50%;
+  background: rgba($oma-green-deep, .35);
+  .cluster-count {
+    position: absolute; inset: 4px; display: flex; align-items: center; justify-content: center;
+    border-radius: 50%; background: $oma-green-deep; color: #fff; font-size: 12px; font-weight: 700;
+    box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform .2s;
+  }
+  &.upcoming { background: rgba($oma-blue, .35); .cluster-count { background: $oma-blue; } }
+  &.open { background: rgba($oma-brown, .35); .cluster-count { background: $oma-brown; } }
+  &:hover .cluster-count { transform: scale(1.15); }
+  &.selected .cluster-count { transform: scale(1.25); box-shadow: 0 0 0 2px #fff, 0 3px 6px rgba(0,0,0,.4); }
+  &.open .tip { bottom: 100%; }
 }
 @keyframes pin-pulse { from { transform: scale(.4); opacity: 1; } to { transform: scale(2.6); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .pin.upcoming::before { animation: none; } }

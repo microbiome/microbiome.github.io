@@ -34,6 +34,7 @@ jobs:
             any::rmarkdown
             any::knitr
             any::jsonlite
+            any::bibtex
 
       - name: Render
         run: quarto render

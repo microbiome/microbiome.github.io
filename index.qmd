@@ -204,21 +204,33 @@ cat('<div class="event-list">', vapply(seq_len(nrow(events)), item, ""), "</div>
 ::: band-inner
 ## Publications
 
-::: pub
-[Preprint]{.pub-badge}
-
-**Orchestrating Microbiome Analysis with Bioconductor**\
-Borman T, Benedetti G, Muluh G, … OMA consortium, … Bastiaanssen TFS, Mallick H, Lahti L.\
-[bioRxiv 2025 · [doi:10.1101/2025.10.29.685036](https://doi.org/10.1101/2025.10.29.685036)]{.venue}
-:::
-
-::: pub
-[Data container]{.pub-badge .brown}
-
-**TreeSummarizedExperiment: a S4 class for data with hierarchical structure**\
-Huang R, Soneson C, Ernst FGM, Rue-Albrecht KC, Yu G, Hicks SC, Robinson MD.\
-[F1000Research 9:1246, 2021 · [doi:10.12688/f1000research.26669.2](https://doi.org/10.12688/f1000research.26669.2)]{.venue}
-:::
+```{r}
+#| output: asis
+# Publications from data/publications.bib, in the order of the file
+pubs <- bibtex::read.bib("data/publications.bib")
+# "Borman T, Benedetti G, Muluh G, …, Mallick H, Lahti L." Lists of more than
+# eight authors show the first and last three.
+authors <- function(a) {
+  a <- vapply(seq_along(a), function(i) {
+    given <- gsub("[^[:upper:]]", "", paste(a[i]$given, collapse = " "))
+    paste(a[i]$family, given)
+  }, "")
+  if (length(a) > 8) a <- c(a[1:3], "…", a[(length(a) - 2):length(a)])
+  paste0(paste(a, collapse = ", "), ".")
+}
+for (i in seq_along(pubs)) {
+  p <- pubs[[i]]
+  venue <- p$journal
+  if (!is.null(p$volume)) venue <- paste0(venue, " ", p$volume, if (!is.null(p$pages)) paste0(":", p$pages))
+  venue <- paste0(venue, if (!is.null(p$volume)) ", " else " ", p$year)
+  if (!is.null(p$doi)) venue <- sprintf("%s · [doi:%s](https://doi.org/%s)", venue, p$doi, p$doi)
+  cat("::: pub\n")
+  if (!is.null(p$badge)) {
+    cat(sprintf("[%s]{.pub-badge%s}\n\n", p$badge, if (!is.null(p$badgecolor)) paste0(" .", p$badgecolor) else ""))
+  }
+  cat(sprintf("**%s**\\\n%s\\\n[%s]{.venue}\n:::\n\n", p$title, authors(p$author), venue))
+}
+```
 
 If you use OMA in your work, please cite the preprint.
 :::

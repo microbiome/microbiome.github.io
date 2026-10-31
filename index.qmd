@@ -36,6 +36,15 @@ events$registration[no_scheme] <- paste0("https://", events$registration[no_sche
 events <- events[order(events$sort_date, decreasing = TRUE), ]
 events$id <- seq_len(nrow(events))
 events$start <- format(events$sort_date)
+# Last day the date could refer to ("2026" -> 2026-12-31, "2026-10" ->
+# 2026-10-31), so a vaguely dated workshop stays upcoming until its period ends.
+precision <- nchar(events$date)  # recompute: rows were reordered above
+period_end <- as.Date(substr(paste0(events$date, "-12-31"), 1, 10), format = "%Y-%m-%d")
+# Month only: first day of the next month, minus one day
+next_month <- as.Date(paste0(events$date, "-01"), format = "%Y-%m-%d") + 31
+period_end[precision == 7] <- as.Date(format(next_month[precision == 7], "%Y-%m-01")) - 1
+period_end[precision == 10] <- as.Date(events$date[precision == 10])
+events$end <- format(period_end)
 events$deadline <- events$registration_deadline
 ```
 
@@ -166,7 +175,7 @@ universities and companies. Drag or zoom the globe to explore, or pick a worksho
 ::: map-card
 ```{r}
 #| output: asis
-workshops <- events[, c("id", "title", "kind", "label", "where", "lat", "lon", "start",
+workshops <- events[, c("id", "title", "kind", "label", "where", "lat", "lon", "start", "end",
                         "registration", "deadline", "deadline_label")]
 cat('<div id="globe" role="img" aria-label="Globe showing workshop locations"></div>\n')
 cat('<div class="globe-zoom"><button type="button" data-zoom="in" aria-label="Zoom in">+</button>',

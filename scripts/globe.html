@@ -11,7 +11,7 @@
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const day = iso => { const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d); };
   window.omaEvents.forEach(d => {
-    d.upcoming = day(d.start) >= today;
+    d.upcoming = day(d.end) >= today;
     d.open = d.upcoming && !!d.registration && (!d.deadline || day(d.deadline) >= today);
   });
 

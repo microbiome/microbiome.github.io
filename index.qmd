@@ -95,7 +95,7 @@ reproducible examples on real data. It is free to read online.
 :::
 
 ::: code-teaser
-<span class="mascot mascot-hat" aria-hidden="true"><span class="mascot-body"><img src="images/characters/hat.svg" alt=""><svg class="face" viewBox="0 0 600 884"><g class="eye wink"><circle cx="222" cy="228" r="28" fill="#fff" stroke="#000" stroke-width="7"/><circle class="pupil" cx="225" cy="232" r="12"/></g><g class="eye"><circle cx="312" cy="222" r="25" fill="#fff" stroke="#000" stroke-width="6"/><circle class="pupil" cx="315" cy="226" r="11"/></g></svg></span></span>
+<span class="mascot mascot-hat" aria-hidden="true"><span class="mascot-body"><img src="images/characters/hat.svg" alt=""></span></span>
 
 ```r
 BiocManager::install(c("mia", "miaViz"))
@@ -170,7 +170,7 @@ We teach microbiome data science with OMA at conferences, summer schools,
 universities and companies. Drag or zoom the globe to explore, or pick a workshop from the list.
 
 ::: workshop-grid
-<span class="mascot mascot-virus" aria-hidden="true"><span class="mascot-body"><span class="mascot-lift"><img src="images/characters/virus-faceless.svg" alt=""><svg class="face" viewBox="0 0 600 606"><g transform="rotate(-43.4 230 229.5)"><path class="frown" d="M153 337Q222 267 309 335" fill="none" stroke="#422b0d" stroke-width="26" stroke-linecap="round"/><g class="o-mouth"><ellipse cx="231" cy="318" rx="26" ry="32" fill="#422b0d"/><ellipse cx="231" cy="336" rx="15" ry="9" fill="#ff6f7d"/></g><g class="eye-v"><circle class="sclera" cx="167" cy="230" r="34" fill="#fff" stroke="#422b0d" stroke-width="6"/><g class="look"><g class="iris"><circle cx="167" cy="230" r="31" fill="#422b0d"/><ellipse cx="159" cy="217" rx="9" ry="10" fill="#896024"/></g></g></g><g class="eye-v"><circle class="sclera" cx="293" cy="230" r="34" fill="#fff" stroke="#422b0d" stroke-width="6"/><g class="look"><g class="iris"><circle cx="293" cy="230" r="31" fill="#422b0d"/><ellipse cx="287" cy="216" rx="9" ry="10" fill="#896024"/></g></g></g><line class="brow brow-l" x1="122" y1="172" x2="201" y2="216" stroke="#422b0d" stroke-width="22" stroke-linecap="round"/><line class="brow brow-r" x1="338" y1="170" x2="282" y2="204" stroke="#422b0d" stroke-width="22" stroke-linecap="round"/></g></svg></span></span></span>
+<span class="mascot mascot-virus" aria-hidden="true"><span class="mascot-body"><img src="images/characters/virus-faceless.svg" alt=""><svg class="face" viewBox="0 0 600 606"><g transform="rotate(-43.4 230 229.5)"><path class="frown" d="M153 337Q222 267 309 335" fill="none" stroke="#422b0d" stroke-width="26" stroke-linecap="round"/><g class="o-mouth"><ellipse cx="231" cy="318" rx="26" ry="32" fill="#422b0d"/><ellipse cx="231" cy="336" rx="15" ry="9" fill="#ff6f7d"/></g><g class="eye-v"><circle class="sclera" cx="167" cy="230" r="34" fill="#fff" stroke="#422b0d" stroke-width="6"/><g class="look"><g class="iris"><circle cx="167" cy="230" r="31" fill="#422b0d"/><ellipse cx="159" cy="217" rx="9" ry="10" fill="#896024"/></g></g></g><g class="eye-v"><circle class="sclera" cx="293" cy="230" r="34" fill="#fff" stroke="#422b0d" stroke-width="6"/><g class="look"><g class="iris"><circle cx="293" cy="230" r="31" fill="#422b0d"/><ellipse cx="287" cy="216" rx="9" ry="10" fill="#896024"/></g></g></g><line class="brow brow-l" x1="122" y1="172" x2="201" y2="216" stroke="#422b0d" stroke-width="22" stroke-linecap="round"/><line class="brow brow-r" x1="338" y1="170" x2="282" y2="204" stroke="#422b0d" stroke-width="22" stroke-linecap="round"/></g></svg></span></span>
 
 ::: map-card
 ```{r}

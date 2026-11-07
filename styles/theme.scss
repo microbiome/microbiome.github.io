@@ -378,83 +378,25 @@ p:has(> .mascot) { margin: 0; height: 0; }
   transition: transform .4s cubic-bezier(.34,1.56,.64,1);
 }
 .mascot img { display: block; width: 100%; margin: 0; }
-// The outer span keeps a steady hover area; the inner body does the moving
 .mascot-body { position: relative; display: block; }
-// Open eyes and mouth (inline SVG over the character), shown on hover
-.mascot .face { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity .12s; }
-.mascot .face .pupil { fill: #1a1a1a; }
-.mascot .eye, .mascot .pupil { transform-box: fill-box; transform-origin: center; }
-
-// Green: opens its eyes and gives one quick wink
-.mascot-hat .face { transition: opacity .6s ease; }
-.mascot-hat:hover .face { opacity: 1; }
-.mascot-hat:hover .wink { animation: wink 2.4s ease-in-out .8s both; }
-@keyframes wink {
-  0%, 30%, 70%, 100% { opacity: 1; transform: scaleY(1); }
-  42%, 58% { opacity: 0; transform: scaleY(.4); }
-}
-
-// Blue: the face morphs from grumpy to surprised, looks at you, and morphs
-// smoothly back. The face is always drawn (over a faceless copy of the virus),
-// so there is no cross-fade between two different drawings.
-.mascot-virus .face { opacity: 1; }
-.mascot-virus :is(.iris, .sclera, .look, .brow, .o-mouth, .frown) { transform-box: fill-box; transform-origin: center; }
+// The blue one's grumpy face is drawn as inline SVG over a faceless copy of the virus
+.mascot .face { position: absolute; inset: 0; width: 100%; height: 100%; }
+.mascot-virus .face :is(.sclera, .o-mouth) { transform-box: fill-box; transform-origin: center; }
 .mascot-virus .o-mouth { transform: scale(0); }
 .mascot-virus .sclera { transform: scale(.85); }
-$v-time: 5s;
-.mascot-virus:hover {
-  .iris    { animation: v-iris $v-time both; }
-  .sclera  { animation: v-sclera $v-time both; }
-  .look    { animation: v-look $v-time both; }
-  .brow-l  { animation: v-brow-l $v-time both; }
-  .brow-r  { animation: v-brow-r $v-time both; }
-  .frown   { animation: v-frown $v-time both; }
-  .o-mouth { animation: v-mouth $v-time both; }
-}
-// 0-7%: quick surprise; 7-40%: hold (glance, then look at you); 40-85%: slow return
-@mixin v-keys($name, $grumpy, $surprised) {
-  @keyframes #{$name} {
-    0%   { #{nth($grumpy, 1)}: nth($grumpy, 2); animation-timing-function: ease-out; }
-    7%, 48% { #{nth($surprised, 1)}: nth($surprised, 2); animation-timing-function: ease-in-out; }
-    85%, 100% { #{nth($grumpy, 1)}: nth($grumpy, 2); }
-  }
-}
-@include v-keys(v-iris,   (transform, scale(1)), (transform, scale(.4)));
-@include v-keys(v-sclera, (transform, scale(.85)), (transform, scale(1.22)));
-// Eyebrows rise and flatten (the angry slant is about 30 degrees)
-@include v-keys(v-brow-l, (transform, none), (transform, translate(-6px, -56px) rotate(-44deg)));
-@include v-keys(v-brow-r, (transform, none), (transform, translate(6px, -56px) rotate(44deg)));
-// The frown shrinks into the centre of the mouth while the "O" grows from it
-@include v-keys(v-frown, (transform, scale(1)), (transform, translateY(17px) scale(.2)));
-@include v-keys(v-mouth,  (transform, scale(0)), (transform, scale(1.35)));
-@keyframes v-look {
-  0%, 7%, 14% { transform: translate(12px, 0); }
-  24%, 100% { transform: translate(0, 0); }
-}
 
-// Idle: an occasional peek; hover: a gentle hop and sway
+// Idle motion: both sway gently
 .mascot-hat { width: 92px; top: -86px; right: 40px; }
-.mascot-hat .mascot-body { transform: rotate(14deg); animation: peek-hat 8s ease-in-out infinite; }
-.mascot-hat:hover .mascot-body { animation-play-state: paused; }
-@keyframes peek-hat {
-  0%, 75%, 100% { transform: rotate(14deg) translateY(0); }
-  84% { transform: rotate(10deg) translateY(-6px); }
+.mascot-hat .mascot-body { transform: rotate(14deg); animation: sway-hat 6s ease-in-out infinite; }
+@keyframes sway-hat {
+  0%, 100% { transform: rotate(14deg); }
+  50% { transform: rotate(11deg); }
 }
 .mascot-virus { width: 84px; top: -68px; right: 26px; }
-.mascot-virus .mascot-body { transform: rotate(43deg); animation: wobble-virus 7s ease-in-out infinite; }
-// The idle wobble on .mascot-body is never interrupted; the startle lift runs on
-// an inner layer, so the angle doesn't jump when the hover starts or ends
-.mascot-lift { position: relative; display: block; }
-.mascot-virus:hover .mascot-lift { animation: startle-virus 2s ease-out 1; }
+.mascot-virus .mascot-body { transform: rotate(52deg); animation: wobble-virus 7s ease-in-out infinite; }
 @keyframes wobble-virus {
-  0%, 100% { transform: rotate(46deg); }
-  50% { transform: rotate(40deg) translateY(-2px); }
-}
-@keyframes startle-virus {
-  0% { translate: 0 0; scale: 1; }
-  10% { translate: 0 -16px; scale: 1.12; }
-  30% { translate: 0 -8px; scale: 1.06; }
-  100% { translate: 0 0; scale: 1; }
+  0%, 100% { transform: rotate(55deg); }
+  50% { transform: rotate(49deg) translateY(-2px); }
 }
 .workshop-grid .mascot-virus { right: 26px; }
 .mascot-bow {
@@ -472,7 +414,7 @@ $v-time: 5s;
   .mascot-virus { width: 64px; top: -44px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .mascot, .mascot-body, .mascot-bow, .mascot .pupil, .mascot .eye { animation: none !important; transition: none; }
+  .mascot, .mascot-body, .mascot-bow { animation: none !important; transition: none; }
 }
 
 // Sections fade in as they scroll into view (see scripts/section-nav.html)
